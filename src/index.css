@@ -1,0 +1,204 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Electro Concept OI Solar Simulator Design System
+Based on brand colors: #39B54A (lime green) to #0A775E (teal)
+All colors MUST be HSL for design system consistency.
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    /* Core brand colors - Electro Concept OI */
+    --primary: 88 59% 48%; /* #39B54A - lime green */
+    --primary-foreground: 0 0% 98%;
+    --primary-teal: 161 85% 24%; /* #0A775E - teal */
+    
+    /* CTA and interaction colors */
+    --cta: 215 100% 19%; /* #002060 - navy blue */
+    --cta-foreground: 0 0% 100%;
+    --cta-hover: 215 100% 15%; /* Darker shade for hover */
+    
+    /* Background system */
+    --background: 0 0% 100%;
+    --foreground: 220 9% 16%;
+    
+    /* Cards and surfaces */
+    --card: 0 0% 100%;
+    --card-foreground: 220 9% 16%;
+    
+    /* KPI background colors (pastel versions of brand) */
+    --kpi-blue: 217 91% 96%; /* #F2F6FF */
+    --kpi-green: 88 41% 94%; /* Light green pastel */
+    --kpi-yellow: 48 89% 94%; /* #FFF8E5 */
+    --kpi-cyan: 195 100% 95%; /* #E5F7FF */
+    
+    /* Gradients */
+    --gradient-brand: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-teal)));
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(88 41% 98%));
+    
+    /* Form and UI elements */
+    --secondary: 88 41% 96%;
+    --secondary-foreground: 220 9% 16%;
+    
+    --muted: 220 13% 95%;
+    --muted-foreground: 220 9% 46%;
+    
+    --accent: var(--kpi-blue);
+    --accent-foreground: 220 9% 16%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: var(--primary);
+    
+    /* Design tokens */
+    --radius: 0.75rem; /* 12px as specified */
+    
+    /* Focus and accessibility */
+    --focus-ring: 37 100% 50%; /* #FFA500 - orange focus ring */
+    
+    /* Animations and transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --animation-duration: 300ms;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Dark mode not prioritized for this solar simulator */
+    --background: 220 20% 8%;
+    --foreground: 0 0% 95%;
+    
+    --primary: 88 59% 48%;
+    --primary-foreground: 0 0% 8%;
+    --primary-teal: 161 85% 30%;
+    
+    --cta: 215 100% 25%;
+    --cta-foreground: 0 0% 100%;
+    --cta-hover: 215 100% 20%;
+    
+    --card: 220 20% 10%;
+    --card-foreground: 0 0% 95%;
+    
+    --secondary: 220 20% 15%;
+    --secondary-foreground: 0 0% 95%;
+    
+    --muted: 220 20% 15%;
+    --muted-foreground: 220 5% 65%;
+    
+    --accent: 220 20% 15%;
+    --accent-foreground: 0 0% 95%;
+    
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 220 20% 20%;
+    --input: 220 20% 20%;
+    --ring: var(--primary);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Custom focus styles for accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-offset-2;
+    ring-color: hsl(var(--focus-ring));
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Progress bar for simulator steps */
+  .progress-segment {
+    @apply h-1 bg-muted transition-colors duration-300;
+  }
+  
+  .progress-segment.active {
+    background: hsl(var(--gradient-brand));
+  }
+
+  /* Touch-friendly button base */
+  .touch-button {
+    @apply min-h-[48px] min-w-[48px] transition-transform duration-200 active:scale-95;
+  }
+
+  /* KPI card backgrounds */
+  .kpi-blue { background: hsl(var(--kpi-blue)); }
+  .kpi-green { background: hsl(var(--kpi-green)); }
+  .kpi-yellow { background: hsl(var(--kpi-yellow)); }
+  .kpi-cyan { background: hsl(var(--kpi-cyan)); }
+
+  /* Brand gradient background */
+  .bg-brand-gradient {
+    background: var(--gradient-brand);
+  }
+
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn var(--animation-duration) ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp var(--animation-duration) ease-out;
+  }
+}
+
+@layer utilities {
+  /* Typography scale */
+  .text-h1 { @apply text-[32px] font-bold leading-tight; }
+  .text-h2 { @apply text-[24px] font-semibold leading-tight; }
+  .text-body { @apply text-[16px] font-normal leading-relaxed; }
+  .text-small { @apply text-[14px] font-normal leading-normal; }
+}
+
+/* Keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
