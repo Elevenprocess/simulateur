@@ -154,21 +154,48 @@ serve(async (req) => {
       console.log('Forwarding to external webhook');
       try {
         const webhookPayload = {
-          contact: submission.contactData,
-          results: submission.simulationResults,
-          leadId: leadData.id,
-          sessionId: submission.sessionId,
-          variantId: submission.variantId || null,
+          // Format plat compatible GHL / LeadConnector webhook
+          first_name: submission.contactData.firstName,
+          last_name: submission.contactData.lastName,
+          full_name: `${submission.contactData.firstName} ${submission.contactData.lastName}`.trim(),
+          email: submission.contactData.email,
+          phone: submission.contactData.phone,
+          address1: submission.simulationResults?.address?.street || submission.simulationResults?.address?.formatted || null,
+          city: submission.simulationResults?.address?.city || null,
+          postal_code: submission.simulationResults?.address?.postalCode || null,
+          source: 'simulateur_supabase',
+          canal_acquisition: 'simulateur_supabase',
+
+          // Trace Supabase / simulateur pour déduplication et debug
+          supabase_lead_id: leadData.id,
+          session_id: submission.sessionId,
+          variant_id: submission.variantId || null,
           timestamp: new Date().toISOString(),
-          // UTM tracking params for CRM
+
+          // Données métier du simulateur
+          bill_range: submission.simulationResults?.billRange || null,
+          puissance_kwc: submission.simulationResults?.puissanceKWc || null,
+          economie_1_an: submission.simulationResults?.economie1an || null,
+          economie_10_ans: submission.simulationResults?.economie10ans || null,
+          reduction_pct: submission.simulationResults?.reductionPct || null,
+          prix_net: submission.simulationResults?.prixNet || null,
+          equipment: submission.simulationResults?.equipment || null,
+
+          // UTM tracking params pour GHL / CRM
           utm_source: submission.utmParams?.utm_source || null,
           utm_medium: submission.utmParams?.utm_medium || null,      // adset.name
           utm_campaign: submission.utmParams?.utm_campaign || null,  // campaign.name
           utm_content: submission.utmParams?.utm_content || null,    // ad.name
           campaign_id: submission.utmParams?.campaign_id || null,    // campaign.id
           fbclid: submission.utmParams?.fbclid || null,              // Facebook Click Identifier
-          // Meta Pixel event ID for CAPI deduplication
           meta_event_id: submission.metaEventId || null,
+
+          // Ancien format conservé pour compatibilité n8n/CRM éventuelle
+          contact: submission.contactData,
+          results: submission.simulationResults,
+          leadId: leadData.id,
+          sessionId: submission.sessionId,
+          variantId: submission.variantId || null,
         };
 
         const webhookResponse = await fetch(webhookUrl, {
