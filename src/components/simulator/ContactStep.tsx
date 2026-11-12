@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSimulatorStore } from "@/store/simulator";
 import { Button } from "@/components/ui/custom-button";
 import { Input } from "@/components/ui/input";
@@ -60,6 +60,8 @@ export function ContactStep({ variant, analytics }: ContactStepProps) {
   const { contact, setContact, calculateResults, results, address } = useSimulatorStore();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Stable Meta event ID for one submission (reused if the user retries after an error)
+  const metaEventIdRef = useRef<string | null>(null);
   const [phonePrefix, setPhonePrefix] = useState<string>('+262');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const navigate = useNavigate();
@@ -163,8 +165,11 @@ export function ContactStep({ variant, analytics }: ContactStepProps) {
     setIsSubmitting(true);
 
     try {
-      // Generate unique event ID for Meta Pixel deduplication with CAPI
-      const metaEventId = crypto.randomUUID();
+      // Stable event ID for Meta Pixel deduplication (same ID reused on retries of this submission)
+      if (!metaEventIdRef.current) {
+        metaEventIdRef.current = crypto.randomUUID();
+      }
+      const metaEventId = metaEventIdRef.current;
       
       // Track the lead in analytics FIRST
       if (analytics) {
@@ -172,10 +177,6 @@ export function ContactStep({ variant, analytics }: ContactStepProps) {
         console.log('✅ Lead tracked in analytics with variant:', variant?.id);
       }
 
-      // Track the lead conversion for Meta Pixel with event ID for deduplication
-      trackLead(metaEventId);
-      console.log('✅ Lead tracked in Meta Pixel with eventID:', metaEventId);
-      
       const state = useSimulatorStore.getState();
       
       // Prepare secure submission data
@@ -238,6 +239,19 @@ export function ContactStep({ variant, analytics }: ContactStepProps) {
       }
 
       if (data?.success) {
+        // Meta Pixel Lead: fired ONLY after the lead is confirmed saved, once per submission (eventID = metaEventId)
+        try {
+          const trackedKey = 'simulator_meta_lead_tracked';
+          if (sessionStorage.getItem(trackedKey) !== metaEventId) {
+            trackLead(metaEventId);
+            sessionStorage.setItem(trackedKey, metaEventId);
+            console.log('✅ Lead tracked in Meta Pixel with eventID:', metaEventId);
+          }
+        } catch (e) {
+          trackLead(metaEventId);
+        }
+        metaEventIdRef.current = null;
+
         toast({
           title: "Estimation envoyée !",
           description: "Vous allez recevoir votre estimation par email.",
